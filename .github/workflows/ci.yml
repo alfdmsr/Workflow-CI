@@ -1,0 +1,60 @@
+name: Advanced Workflow CI
+
+on:
+    push:
+        branches:
+            - main
+    workflow_dispatch:
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest\
+
+        steps:
+        - name: Run actions/checkout@v3
+          uses: actions/checkout@v3
+
+        - name: Set up Python 3.12.7
+          uses: actions/setup-python@v4
+          with:
+            python-version: '3.12.7'
+
+        - name: Check Env
+          run: python --verison
+
+        - name: Install depedencies
+          run: pip isntall mlflow==2.19.0 pandas scikit-learn
+
+        - name: Run mlflow project
+          run: mlflow run MLProject --env-manager=local
+
+        - name: Get latest MLflow run_id
+          id: get_run_id
+          run: |
+            RUN_ID=$(ls -t mlruns/0/ | grep -v meta.yaml | head -n 1)
+            echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
+            echo "Berhasil mendapatkan Run ID: $RUN_ID"
+
+        - name: Upload to GitHub
+          uses: actions/upload-artifact@v4
+          with:
+            name: mlflow-model-artifacts
+            path: mlruns/
+
+        - name: Build Docker Model
+          run: |
+            mlflow models build-docker -m "runs:/${{ env.RUN_ID }}/model" -n ${{ secrets.DOCKER_USERNAME }}/predictive-maintenance:latest
+
+        - name: Log in to Docker Hub
+          uses: docker/login-action@v2
+          with:
+            username: ${{ secrets.DOCKER_USERNAME }}
+            password: ${{ secrets.DOCKER_PASSWORD }}
+
+        - name: Tag Docker Image
+          run: docker tag ${{ secrets.DOCKER_USERNAME }}/predictive-maintenance:latest ${{ secrets.DOCKER_USERNAME }}/predictive-maintenance:v1
+
+        - name: Push Docker Image
+          run: |
+            docker push ${{ secrets.DOCKER_USERNAME }}/predictive-maintenance:latest
+            docker push ${{ secrets.DOCKER_USERNAME }}/predictive-maintenance:v1

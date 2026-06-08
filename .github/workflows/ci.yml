@@ -43,7 +43,7 @@ jobs:
 
         - name: Build Docker Model
           run: |
-            mlflow models build-docker -m "runs:/${{ env.RUN_ID }}/model" -n ${{ secrets.DOCKER_USERNAME }}/predictive-maintenance:latest
+            mlflow models build-docker -m "runs:/${{ env.RUN_ID }}/model" -n ${{ secrets.DOCKER_USERNAME }}/predictive-maintenance:latest --env-manager=conda
 
         - name: Log in to Docker Hub
           uses: docker/login-action@v2

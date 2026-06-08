@@ -5,8 +5,6 @@ import mlflow
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 
-mlflow.set_experiment("CI_Automated_Training")
-
 with mlflow.start_run():
     print("Memulai proses pelatihan CI...")
 

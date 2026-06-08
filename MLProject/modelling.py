@@ -19,6 +19,19 @@ with mlflow.start_run():
     rf = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
     rf.fit(X_train, y_train)
 
-    mlflow.sklearn.log_model(rf, "model")
+    custom_env = {
+        "name": "mlflow-env",
+        "channels": ["conda-forge", "nodefaults"], # nodefaults adalah kunci ajaibnya!
+        "dependencies": [
+            "python=3.10",
+            "pip",
+            {"pip": ["mlflow==2.19.0", "pandas", "scikit-learn"]}
+        ]
+    }
+
+    mlflow.sklearn.log_model(sk_model=rf,
+                             artifact_path= "model",
+                             conda_env=custom_env
+                             )
 
     print("Pelatihan CI selesai dan model berhasil disimpan!")

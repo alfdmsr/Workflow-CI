@@ -8,7 +8,7 @@ on:
 
 jobs:
     build-and-deploy:
-        runs-on: ubuntu-latest\
+        runs-on: ubuntu-latest
 
         steps:
         - name: Run actions/checkout@v3
@@ -20,10 +20,10 @@ jobs:
             python-version: '3.12.7'
 
         - name: Check Env
-          run: python --verison
+          run: python --version
 
         - name: Install depedencies
-          run: pip isntall mlflow==2.19.0 pandas scikit-learn
+          run: pip install mlflow==2.19.0 pandas scikit-learn
 
         - name: Run mlflow project
           run: mlflow run MLProject --env-manager=local
